@@ -1,0 +1,32 @@
+name: Auto Vote Cron Job
+
+on:
+  schedule:
+    - cron: '*/15 23,0-10 * * *'
+  workflow_dispatch: # Memungkinkan kita menjalankan manual dari tab Actions di GitHub
+
+jobs:
+  vote:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Memberikan hak akses tulis untuk melakukan push kembali
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Run Auto Vote Script
+        run: node send-votes.js
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add warga.json
+          # Commit hanya jika ada perubahan pada warga.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto vote: Update warga.json [skip ci]"
+          git push

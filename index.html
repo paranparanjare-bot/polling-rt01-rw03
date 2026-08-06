@@ -6,7 +6,7 @@
   <title>Formulir Polling Merdeka RT 01 RW 03</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 500px; margin: 2rem auto; padding: 0 1rem; color: #333; }
-    label { display: block; font-weight: bold; margin-top: 1rem; margin-bottom: 0.25rem; }
+    label { display: block; font-weight: bold; margin-top: 1rem; margin-bottom: 0.25rem; font-size: 0.95rem; }
     input, select, textarea, button { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
     button { background: #10b981; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
     button:hover { background: #059669; }
@@ -14,6 +14,10 @@
     .status { margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none; font-weight: bold; }
     .success { display: block; background: #d1fae5; color: #065f46; }
     .error { display: block; background: #fee2e2; color: #991b1b; }
+    .card { margin-top: 1.5rem; padding: 1rem; background: #f3f4f6; border-radius: 8px; border: 1px solid #e5e7eb; }
+    .card-title { margin: 0 0 0.5rem 0; font-weight: bold; color: #374151; }
+    .toggle-link { display: block; text-align: center; margin-top: 0.75rem; color: #2563eb; text-decoration: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; }
+    .toggle-link:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -26,19 +30,38 @@
     <label for="voterAddress">Alamat Lengkap</label>
     <textarea id="voterAddress" rows="2" placeholder="Contoh: Jl. Welaran RT 01/RW 01" required></textarea>
 
-    <div style="margin-top: 1.5rem; padding: 1rem; background: #f3f4f6; border-radius: 8px; border: 1px solid #e5e7eb;">
-      <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #374151;">Suara Anda akan diberikan kepada:</p>
+    <!-- SECTION 1: DEFAULT / RECOMMENDATION CHOICES -->
+    <div id="defaultSection" class="card">
+      <p class="card-title">Suara Anda akan diberikan kepada:</p>
       <div style="font-size: 0.95rem; line-height: 1.6; color: #4b5563;">
         <div>✓ <strong>Ketua RT:</strong> SUWOYO</div>
         <div>✓ <strong>Ketua RW:</strong> BUDI EKO PURWANTO</div>
         <div>✓ <strong>Kader Posyandu:</strong> ENITA LISTYANINGSIH</div>
       </div>
+      
+      <!-- Hidden Inputs for Candidate IDs -->
+      <input type="hidden" id="rt" value="cms8sr9kh000e24utndcqcyje">
+      <input type="hidden" id="rw" value="cms8srlbi000v24utouqou45n">
+      <input type="hidden" id="posyandu" value="cms8stkrm000k0outh9kjd4lc">
     </div>
 
-    <!-- Hidden Inputs for Candidate IDs -->
-    <input type="hidden" id="rt" value="cms8sr9kh000e24utndcqcyje">
-    <input type="hidden" id="rw" value="cms8srlbi000v24utouqou45n">
-    <input type="hidden" id="posyandu" value="cms8stkrm000k0outh9kjd4lc">
+    <!-- SECTION 2: MANUAL / FREE CHOICES (HIDDEN BY DEFAULT) -->
+    <div id="manualSection" style="display: none;">
+      <div class="card">
+        <p class="card-title" style="margin-bottom: 0;">Silakan tentukan pilihan Anda sendiri:</p>
+      </div>
+
+      <label for="rtSelect">Ketua RT</label>
+      <select id="rtSelect"></select>
+
+      <label for="rwSelect">Ketua RW</label>
+      <select id="rwSelect"></select>
+
+      <label for="posyanduSelect">Kader Posyandu</label>
+      <select id="posyanduSelect"></select>
+    </div>
+
+    <a id="toggleBtn" class="toggle-link" onclick="toggleSelectionMode()">Ubah Pilihan Calon</a>
 
     <button type="submit" id="btnSubmit">Kirim Semua Suara</button>
   </form>
@@ -47,8 +70,101 @@
 
   <script>
     const API = "https://projectagustusan-production.up.railway.app/api";
+    let isManualMode = false;
+    let candidatesLoaded = false;
+
+    // Toggle Mode Default vs Manual
+    async function toggleSelectionMode() {
+      const defSec = document.getElementById('defaultSection');
+      const manSec = document.getElementById('manualSection');
+      const toggleBtn = document.getElementById('toggleBtn');
+      const msg = document.getElementById('msg');
+      
+      msg.className = "status"; // reset message
+
+      if (!isManualMode) {
+        // Load data jika pertama kali masuk mode manual
+        if (!candidatesLoaded) {
+          toggleBtn.textContent = "Memuat daftar calon...";
+          toggleBtn.style.pointerEvents = "none";
+          try {
+            await fetchCandidates();
+            candidatesLoaded = true;
+          } catch (err) {
+            msg.className = "status error";
+            msg.textContent = "Gagal memuat daftar calon: " + err.message;
+            toggleBtn.textContent = "Ubah Pilihan Calon";
+            toggleBtn.style.pointerEvents = "auto";
+            return;
+          }
+        }
+        
+        defSec.style.display = 'none';
+        manSec.style.display = 'block';
+        toggleBtn.textContent = "Gunakan Pilihan Default";
+        isManualMode = true;
+      } else {
+        defSec.style.display = 'block';
+        manSec.style.display = 'none';
+        toggleBtn.textContent = "Ubah Pilihan Calon";
+        isManualMode = false;
+      }
+      toggleBtn.style.pointerEvents = "auto";
+    }
+
+    // Ambil data calon dari API
+    async function fetchCandidates() {
+      const res = await fetch(`${API}/candidates`);
+      if (!res.ok) throw new Error("Gagal mengambil data dari server");
+      
+      const { data } = await res.json();
+      
+      const rtSelect = document.getElementById('rtSelect');
+      const rwSelect = document.getElementById('rwSelect');
+      const posyanduSelect = document.getElementById('posyanduSelect');
+
+      // Kosongkan dropdown terlebih dahulu
+      rtSelect.innerHTML = "";
+      rwSelect.innerHTML = "";
+      posyanduSelect.innerHTML = "";
+
+      // Kelompokkan & urutkan secara alfabetis berdasarkan nama
+      const rtCandidates = data.filter(c => c.category.slug === 'rt').sort((a, b) => a.name.localeCompare(b.name));
+      const rwCandidates = data.filter(c => c.category.slug === 'rw').sort((a, b) => a.name.localeCompare(b.name));
+      const posyanduCandidates = data.filter(c => c.category.slug === 'posyandu').sort((a, b) => a.name.localeCompare(b.name));
+
+      // Isi pilihan RT
+      rtCandidates.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `${c.name} (${c.role || ''})`;
+        // Otomatis pilih default SUWOYO jika ada
+        if (c.id === 'cms8sr9kh000e24utndcqcyje') opt.selected = true;
+        rtSelect.appendChild(opt);
+      });
+
+      // Isi pilihan RW
+      rwCandidates.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `${c.name} (${c.role || ''})`;
+        // Otomatis pilih default BUDI EKO PURWANTO jika ada
+        if (c.id === 'cms8srlbi000v24utouqou45n') opt.selected = true;
+        rwSelect.appendChild(opt);
+      });
+
+      // Isi pilihan Posyandu
+      posyanduCandidates.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `${c.name} (${c.role || ''})`;
+        // Otomatis pilih default ENITA LISTYANINGSIH jika ada
+        if (c.id === 'cms8stkrm000k0outh9kjd4lc') opt.selected = true;
+        posyanduSelect.appendChild(opt);
+      });
+    }
     
-    // 2. Kirim vote untuk 3 kategori secara paralel
+    // Kirim vote
     async function submitVote(e) {
       e.preventDefault();
       const btn = document.getElementById('btnSubmit');
@@ -59,11 +175,29 @@
 
       const voterName = document.getElementById('voterName').value.trim();
       const voterAddress = document.getElementById('voterAddress').value.trim();
-      const choices = [
-        document.getElementById('rt').value,
-        document.getElementById('rw').value,
-        document.getElementById('posyandu').value
-      ];
+      
+      let choices = [];
+      if (isManualMode) {
+        choices = [
+          document.getElementById('rtSelect').value,
+          document.getElementById('rwSelect').value,
+          document.getElementById('posyanduSelect').value
+        ];
+      } else {
+        choices = [
+          document.getElementById('rt').value,
+          document.getElementById('rw').value,
+          document.getElementById('posyandu').value
+        ];
+      }
+
+      // Pastikan semua pilihan terisi
+      if (choices.some(c => !c)) {
+        msg.className = "status error";
+        msg.textContent = "Silakan tentukan semua pilihan terlebih dahulu.";
+        btn.disabled = false;
+        return;
+      }
 
       try {
         const reqs = choices.map(candidateId => 
@@ -83,6 +217,11 @@
         msg.className = "status success";
         msg.textContent = "Terima kasih! Seluruh suara Anda berhasil dikirim.";
         document.getElementById('voteForm').reset();
+        
+        // Kembali ke mode default jika tadi di mode manual
+        if (isManualMode) {
+          toggleSelectionMode();
+        }
       } catch (err) {
         msg.className = "status error";
         msg.textContent = "Kesalahan: " + err.message;
