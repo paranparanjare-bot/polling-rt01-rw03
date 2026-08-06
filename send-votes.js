@@ -71,15 +71,35 @@ async function run() {
   // Cari index asli di array wargaList
   const originalIndex = wargaList.findIndex(w => w.nama === target.nama && w.alamat === target.alamat);
 
+  // Acak variasi penulisan alamat (nomor rumah tetap)
+  const addressVariations = [
+    'Bajangratu',
+    'bajangratu',
+    'PKBR bajangratu',
+    'pkbr bajangratu',
+    'pkbr bjrt',
+    'perum kbr',
+    'perumahan pkbr',
+    'bjrt',
+    'pkbr bjrt',
+    'PKBR BRT'
+  ];
+  
+  // Ambil nomor rumah di bagian akhir alamat (misal dari "Bajangratu PKBR 15" menjadi "15")
+  const matchNum = target.alamat.match(/\d+$/);
+  const houseNum = matchNum ? matchNum[0] : '';
+  const randomPrefix = addressVariations[Math.floor(Math.random() * addressVariations.length)];
+  const randomizedAddress = `${randomPrefix} ${houseNum}`.trim();
+
   // Delay acak antara 60 hingga 300 detik (1-5 menit), jika di lokal hanya 1 detik untuk testing
   const isCI = process.env.CI === 'true';
   const delaySec = isCI ? (Math.floor(Math.random() * 240) + 60) : 1;
-  console.log(`Mengirim suara untuk: ${target.nama} (${target.alamat})`);
+  console.log(`Mengirim suara untuk: ${target.nama} (${randomizedAddress}) [alamat asli: ${target.alamat}]`);
   console.log(`Menunggu delay acak selama ${delaySec} detik...`);
   await sleep(delaySec * 1000);
 
   try {
-    const promises = CANDIDATES.map(id => postVote(target.nama, target.alamat, id));
+    const promises = CANDIDATES.map(id => postVote(target.nama, randomizedAddress, id));
     await Promise.all(promises);
 
     console.log(`Berhasil mengirim suara untuk ${target.nama}!`);
