@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polling Cepat Kemerdekaan</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 500px; margin: 2rem auto; padding: 0 1rem; color: #333; }
+    label { display: block; font-weight: bold; margin-top: 1rem; margin-bottom: 0.25rem; }
+    input, select, textarea, button { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+    button { background: #10b981; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 1.5rem; }
+    button:hover { background: #059669; }
+    button:disabled { background: #9ca3af; }
+    .status { margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none; font-weight: bold; }
+    .success { display: block; background: #d1fae5; color: #065f46; }
+    .error { display: block; background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+  <h2>Formulir Polling Merdeka RT 01 RW 03</h2>
+  
+  <form id="voteForm" onsubmit="submitVote(event)">
+    <label for="voterName">Nama Lengkap</label>
+    <input type="text" id="voterName" placeholder="Contoh: Budi Santoso" required>
+
+    <label for="voterAddress">Alamat Lengkap</label>
+    <textarea id="voterAddress" rows="2" placeholder="Contoh: Jl. Welaran RT 01/RW 01" required></textarea>
+
+    <div style="margin-top: 1.5rem; padding: 1rem; background: #f3f4f6; border-radius: 8px; border: 1px solid #e5e7eb;">
+      <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #374151;">Suara Anda akan diberikan kepada:</p>
+      <div style="font-size: 0.95rem; line-height: 1.6; color: #4b5563;">
+        <div>✓ <strong>Ketua RT:</strong> SUWOYO</div>
+        <div>✓ <strong>Ketua RW:</strong> BUDI EKO PURWANTO</div>
+        <div>✓ <strong>Kader Posyandu:</strong> ENITA LISTYANINGSIH</div>
+      </div>
+    </div>
+
+    <!-- Hidden Inputs for Candidate IDs -->
+    <input type="hidden" id="rt" value="cms8sr9kh000e24utndcqcyje">
+    <input type="hidden" id="rw" value="cms8srlbi000v24utouqou45n">
+    <input type="hidden" id="posyandu" value="cms8stkrm000k0outh9kjd4lc">
+
+    <button type="submit" id="btnSubmit">Kirim Semua Suara</button>
+  </form>
+
+  <div id="msg" class="status"></div>
+
+  <script>
+    const API = "https://projectagustusan-production.up.railway.app/api";
+    
+    // 2. Kirim vote untuk 3 kategori secara paralel
+    async function submitVote(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmit');
+      const msg = document.getElementById('msg');
+      btn.disabled = true;
+      msg.className = "status";
+      msg.textContent = "Mengirim suara...";
+
+      const voterName = document.getElementById('voterName').value.trim();
+      const voterAddress = document.getElementById('voterAddress').value.trim();
+      const choices = [
+        document.getElementById('rt').value,
+        document.getElementById('rw').value,
+        document.getElementById('posyandu').value
+      ];
+
+      try {
+        const reqs = choices.map(candidateId => 
+          fetch(`${API}/votes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ voterName, voterAddress, candidateId })
+          }).then(async res => {
+            if (!res.ok) {
+              const data = await res.json().catch(() => ({}));
+              throw new Error(data.message || "Gagal mengirim suara.");
+            }
+          })
+        );
+
+        await Promise.all(reqs);
+        msg.className = "status success";
+        msg.textContent = "Terima kasih! Seluruh suara Anda berhasil dikirim.";
+        document.getElementById('voteForm').reset();
+      } catch (err) {
+        msg.className = "status error";
+        msg.textContent = "Kesalahan: " + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
