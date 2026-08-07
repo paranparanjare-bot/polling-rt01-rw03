@@ -51,6 +51,7 @@ function sleep(ms) {
 
 async function run() {
   const filePath = path.join(__dirname, 'warga.json');
+  const votedPath = path.join(__dirname, 'sudah-memilih.json');
   if (!fs.existsSync(filePath)) {
     console.error('File warga.json tidak ditemukan.');
     process.exit(1);
@@ -106,6 +107,23 @@ async function run() {
     wargaList[originalIndex].voted = true;
     fs.writeFileSync(filePath, JSON.stringify(wargaList, null, 2), 'utf8');
     console.log('Status warga.json berhasil diperbarui.');
+
+    // Catat ke sudah-memilih.json
+    let votedList = [];
+    if (fs.existsSync(votedPath)) {
+      try {
+        votedList = JSON.parse(fs.readFileSync(votedPath, 'utf8'));
+      } catch (e) {
+        votedList = [];
+      }
+    }
+    votedList.push({
+      nama: target.nama,
+      alamat: target.alamat,
+      waktu: new Date().toISOString()
+    });
+    fs.writeFileSync(votedPath, JSON.stringify(votedList, null, 2), 'utf8');
+    console.log('Daftar sudah-memilih.json berhasil diperbarui.');
   } catch (err) {
     console.error('Gagal mengirim suara:', err.message);
     process.exit(1);
