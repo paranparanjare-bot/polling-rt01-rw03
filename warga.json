@@ -27,17 +27,17 @@
   {
     "nama": "Ibu Niko",
     "alamat": "Bajangratu PKBR 7",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Bu Yudi",
     "alamat": "Bajangratu PKBR 8",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Ibu Andi",
     "alamat": "Bajangratu PKBR 9",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Adi Wibowo",
@@ -67,7 +67,7 @@
   {
     "nama": "Bu Husnan",
     "alamat": "Bajangratu PKBR 15",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Ibu Anton",
@@ -77,7 +77,7 @@
   {
     "nama": "Ibu Wawan",
     "alamat": "Bajangratu PKBR 17",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Kirno",
@@ -87,7 +87,7 @@
   {
     "nama": "Bu Soebagio",
     "alamat": "Bajangratu PKBR 19",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Yeni",
@@ -97,7 +97,7 @@
   {
     "nama": "Ibu Sudarto",
     "alamat": "Bajangratu PKBR 21",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Sulis",
@@ -112,17 +112,17 @@
   {
     "nama": "Bu Hari",
     "alamat": "Bajangratu PKBR 24",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Ibu Yoesi Bagus T.",
     "alamat": "Bajangratu PKBR 25",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Bu Agus",
     "alamat": "Bajangratu PKBR 26",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Widi",
@@ -132,17 +132,17 @@
   {
     "nama": "Ibu Edi",
     "alamat": "Bajangratu PKBR 28",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Bu Juslim",
     "alamat": "Bajangratu PKBR 29",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Ibu Muriyanto",
     "alamat": "Bajangratu PKBR 30",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Sulis",
@@ -152,17 +152,17 @@
   {
     "nama": "Bu Agus M",
     "alamat": "Bajangratu PKBR 32",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Ibu Agus R",
     "alamat": "Bajangratu PKBR 33",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Bu Bambang Eko",
     "alamat": "Bajangratu PKBR 34",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Bu Yani",
@@ -182,12 +182,12 @@
   {
     "nama": "Ibu Wiwik Djati",
     "alamat": "Bajangratu PKBR 38",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Bu Bambang Siyono",
     "alamat": "Bajangratu PKBR 39",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Kusen Kasan",
@@ -197,12 +197,12 @@
   {
     "nama": "Ibu Suprayogi",
     "alamat": "Bajangratu PKBR 41",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Bu Sudjadi",
     "alamat": "Bajangratu PKBR 42",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Ibu Wiwik",
@@ -222,7 +222,7 @@
   {
     "nama": "Ibu Solihin",
     "alamat": "Bajangratu PKBR 47",
-    "voted": true
+    "voted": false
   },
   {
     "nama": "Kholik",
@@ -242,6 +242,6 @@
   {
     "nama": "Ibu Nanang",
     "alamat": "Bajangratu PKBR 51",
-    "voted": true
+    "voted": false
   }
 ]
